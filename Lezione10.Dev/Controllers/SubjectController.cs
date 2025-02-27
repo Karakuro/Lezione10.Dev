@@ -25,7 +25,11 @@ namespace Lezione10.Dev.Controllers
                 .ConvertAll(_mapper.MapEntityToDto);
             return Ok(result);
         }
-
+        /// <summary>
+        /// API che restituisca le 3 materie in cui gli studenti hanno maggiore difficoltà
+        /// </summary>
+        /// <returns></returns>
+        /// 
         [HttpGet]
         [Route("Worst")]
         public IActionResult GetWorstSubjects()
@@ -36,6 +40,21 @@ namespace Lezione10.Dev.Controllers
                 s.Title,
                 s.Credits,
                 Average = s.Exams.Average(e => e.Grade)
+            }).OrderBy(s => s.Average).Take(3);
+
+            return Ok(query);
+        }
+
+        [HttpGet]
+        [Route("Worstest")]
+        public IActionResult GetWorstestSubjects()
+        {
+            var query = _ctx.Subjects.Select(s => new
+            {
+                s.Id,
+                s.Title,
+                s.Credits,
+                Average = ((30 - s.Exams.Average(e => e.Grade))*s.Credits)/(30*15)
             }).OrderBy(s => s.Average).Take(3);
 
             return Ok(query);

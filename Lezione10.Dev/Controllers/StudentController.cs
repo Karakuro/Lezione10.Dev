@@ -3,6 +3,7 @@ using Lezione10.Dev.DTO;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing.Constraints;
 using Microsoft.EntityFrameworkCore;
 
 namespace Lezione10.Dev.Controllers
@@ -81,14 +82,6 @@ namespace Lezione10.Dev.Controllers
         }
 
         /// <summary>
-        /// API che restituisca le 3 materie in cui gli studenti hanno maggiore difficoltà
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        /// 
-
-
-        /// <summary>
         /// API che dichiari, dato uno studente, quale media futura dovrà tenere 
         /// per arrivare alla media del 28
         /// PRESUPPOSTI: inserire abbastanza esami in database da raggiungere
@@ -96,6 +89,31 @@ namespace Lezione10.Dev.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
+        /// 
+        [HttpGet]
+        [Route("FutureAvg/{id}")]
+        public IActionResult GetFutureAvg(int id)
+        {
+            _ctx.Subjects.Where(s => !s.Exams.Any(e => e.StudentId == id)).Sum(e => e.Credits);
+
+            _ctx.Subjects.Except(_ctx.Exams.Where(e => e.StudentId == id).Select(e => e.Subject));
+
+            Student? student = _ctx.Students
+                .Include(s => s.Exams)
+                .ThenInclude(e => e.Subject)
+                .SingleOrDefault(s => s.Id == id);
+
+            if (student == null)
+                return BadRequest();
+            int totCredits = _ctx.Subjects.Sum(s => s.Credits);
+            int actualCredits = student.Exams.Sum(e => e.Subject.Credits);
+            int weightedGrades = student.Exams.Sum(e => e.Grade * e.Subject.Credits);
+
+            double result = Math.Max((28 * totCredits - weightedGrades) / (totCredits - actualCredits),18);
+            if (result > 30)
+                return Ok("SEEEEEEEEE VOLEVI!!!!!!");
+            return Ok(result);
+        }
 
         // https://localhost:7447/api/Student/1
 
