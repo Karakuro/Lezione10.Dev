@@ -39,6 +39,7 @@ namespace Lezione10.Dev.Controllers
             //                  on s.Id equals id
             //                  select s).ToList();
 
+
             var newResult = _ctx.Students.Join(ids,
                 s => s.Id,
                 id => id,

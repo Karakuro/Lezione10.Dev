@@ -45,6 +45,16 @@ namespace Lezione10.Dev.Controllers
             return Created("", _mapper.MapEntityToDto(entity));
         }
 
+        [HttpPost]
+        [Route("All")]
+        public IActionResult CreateAll(List<ExamDTO> Exams)
+        {
+            List<Exam> entities = Exams.ConvertAll(_mapper.MapDtoToEntity);
+            _ctx.Exams.Join(entities, e => new { e.StudentId, e.SubjectId }, e => new { e.StudentId, e.SubjectId }, )
+            _ctx.SaveChanges();
+            return Ok();
+        }
+
         [HttpPut]
         public IActionResult Update(ExamDTO exam)
         {
