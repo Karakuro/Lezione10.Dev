@@ -49,8 +49,33 @@ namespace Lezione10.Dev.Controllers
         [Route("All")]
         public IActionResult CreateAll(List<ExamDTO> Exams)
         {
-            List<Exam> entities = Exams.ConvertAll(_mapper.MapDtoToEntity);
-            _ctx.Exams.Join(entities, e => new { e.StudentId, e.SubjectId }, e => new { e.StudentId, e.SubjectId }, )
+            var newExams = Exams.Select(e => new
+            {
+                e.StudentId,
+                e.SubjectId
+            });
+
+            var alreadyRegistered = _ctx.Exams.Join(newExams,
+                e => new { e.StudentId, e.SubjectId },
+                n => n,
+                (e, n) => n).ToList();
+
+            //QUANDO TRATTO ELEMENTI CHE ARRIVANO DA INSIEMI DIVERSI AKA PARLO DI RIFERIMENTI DI MEMORIA DIVERSI
+            newExams = newExams.ExceptBy(alreadyRegistered, 
+            e => new
+            {
+                e.StudentId,
+                e.SubjectId
+            }).ToList();
+
+            //QUANDO TRATTO ELEMENTI CHE ARRIVANO DA UNO STESSO INSIEME AKA PARLO DEGLI STESSI RIFERIMENTI DI MEMORIA
+            newExams = newExams.Except(alreadyRegistered).ToList();
+            _ctx.Exams.AddRange(newExams.Select(e => new Exam {
+                StudentId = e.StudentId,
+                SubjectId = e.SubjectId,
+                Grade = 0
+            }));
+
             _ctx.SaveChanges();
             return Ok();
         }
