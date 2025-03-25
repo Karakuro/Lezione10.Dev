@@ -1,5 +1,6 @@
 using Lezione10.Dev.Data;
 using Lezione10.Dev.DTO;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,9 +9,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
-string? connStr = builder.Configuration.GetConnectionString("Default");
+//string? connStr = builder.Configuration.GetConnectionString("Default");
+string? connStr = builder.Configuration.GetConnectionString("Azure");
 builder.Services.AddSqlServer<SchoolDbContext>(connStr);
 builder.Services.AddSingleton<Mapper>();
+builder.Services.AddCors(options => options.AddDefaultPolicy(config =>
+{
+    config.WithOrigins("http://127.0.0.1:5500", "sites.azure.com").AllowAnyHeader().AllowAnyMethod();
+}));
 
 var app = builder.Build();
 
@@ -22,10 +28,12 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseStaticFiles();
+
+app.UseCors(); //OBBLIGATORIAMENTE QUI!!!!!!
+
 app.UseAuthorization();
 
 app.MapControllers();
-
-app.UseStaticFiles();
 
 app.Run();

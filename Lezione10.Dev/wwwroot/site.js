@@ -1,5 +1,5 @@
 ﻿document.addEventListener("DOMContentLoaded", () => { GetData(); });
-
+const baseUrl = "https://localhost:7259"
 let template_studs = (item) => {
     return `<tr>
             <td>${item.id}</td>
@@ -9,7 +9,7 @@ let template_studs = (item) => {
 };
 
 let GetData = () => {
-    return fetch("/api/student")
+    return fetch(`${baseUrl}/api/students`)
     .then(result => result.json())
     .then(json => InsertDataInTable(json));
 }
