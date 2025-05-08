@@ -9,7 +9,7 @@ let template_studs = (item) => {
 };
 
 let GetData = () => {
-    return fetch(`${baseUrl}/api/students`)
+    return fetch(`${baseUrl}/api/student`)
     .then(result => result.json())
     .then(json => InsertDataInTable(json));
 }

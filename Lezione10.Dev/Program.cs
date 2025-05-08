@@ -10,8 +10,13 @@ builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 //string? connStr = builder.Configuration.GetConnectionString("Default");
+
+
 string? connStr = builder.Configuration.GetConnectionString("Azure");
 builder.Services.AddSqlServer<SchoolDbContext>(connStr);
+
+
+
 builder.Services.AddSingleton<Mapper>();
 builder.Services.AddCors(options => options.AddDefaultPolicy(config =>
 {

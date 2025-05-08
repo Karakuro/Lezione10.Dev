@@ -33,6 +33,7 @@ namespace Lezione10.Dev.Controllers
         }
 
         [HttpPost]
+        [Route("Many")]
         public IActionResult GetMany(List<int> ids)
         {
             //List<Student> resultLinq = (from s in _ctx.Students
@@ -58,15 +59,25 @@ namespace Lezione10.Dev.Controllers
         [Route("Top")]
         public IActionResult GetTopStudents()
         {
-            var query = _ctx.Students.Select(s => new
+            //var query = _ctx.Students.Select(s => new
+            //{
+            //    s.Id,
+            //    s.Name,
+            //    s.Surname,
+            //    Average = (double)s.Exams.Sum(e => e.Grade * e.Subject.Credits) / s.Exams.Sum(e => e.Subject.Credits)
+            //});
+
+            _ctx.Students.Select(s => new
             {
                 s.Id,
-                s.Name,
+                Exams = s.Exams.Select(e => new { 
+                    e.SubjectId, e.Grade, e.Subject.Title, e.Subject.Credits 
+                }),
                 s.Surname,
-                Average = (double)s.Exams.Sum(e => e.Grade * e.Subject.Credits) / s.Exams.Sum(e => e.Subject.Credits)
-            });
+                s.Name
+            }).SingleOrDefault(s => s.Id == 1);
 
-            query = query.OrderByDescending(s => s.Average).Take(3);
+            //query = query.OrderByDescending(s => s.Average).Take(3);
 
             //query = (from s in _ctx.Students
             //         select new
@@ -80,7 +91,7 @@ namespace Lezione10.Dev.Controllers
             //         select q
             //         ).Take(3);
 
-            return Ok(query);
+            return Ok();
         }
 
         /// <summary>
