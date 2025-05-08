@@ -1,6 +1,7 @@
 using Lezione10.Dev.Data;
 using Lezione10.Dev.DTO;
 using Microsoft.AspNetCore.Cors.Infrastructure;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +30,12 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+}
+
+using(var scope = app.Services.CreateScope())
+{
+    var ctx = scope.ServiceProvider.GetRequiredService<SchoolDbContext>();
+    ctx.Database.Migrate();
 }
 
 app.UseHttpsRedirection();
